@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "./routes/user.js";
+import sosRoutes from "./routes/sos.js";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
   res.send("AlertIQ Backend Running ✅");
 });
 app.use("/api/user", userRoutes);
+app.use("/api/sos", sosRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
