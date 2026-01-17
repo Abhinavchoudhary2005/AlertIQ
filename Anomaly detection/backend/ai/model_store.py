@@ -1,0 +1,3 @@
+MODELS = {}
+ROUTES = {}
+TEMPORAL_MODELS = {}
