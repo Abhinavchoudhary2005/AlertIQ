@@ -1,10 +1,11 @@
-// Home.tsx - Voice detection removed
+// Home.tsx - Add useMemo to stabilize the callback
 import { View, StyleSheet, Alert, ActivityIndicator, Text } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import * as Location from "expo-location";
 import { auth } from "../../config/firebase";
 import { triggerSOS } from "../../utils/sosTrigger";
+import { useVoiceDetection } from "../../hooks/useVoiceDetection";
 import { RouteOption } from "../../types";
 import SearchOverlay from "../../components/SearchOverlay";
 import SearchInputsCard from "../../components/SearchInputsCard";
@@ -40,9 +41,11 @@ export default function Home() {
   const locationSubscription = useRef<any>(null);
 
   const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const VOICE_API_URL = process.env.EXPO_PUBLIC_VOICE_API_URL;
   const ORS_KEY = process.env.EXPO_PUBLIC_ORS_KEY;
 
-  const handleSOSTrigger = async () => {
+  // Memoize the SOS handler to prevent it from changing on every render
+  const handleSOSTrigger = useCallback(async () => {
     if (sosLoading) return;
     setSosLoading(true);
     try {
@@ -54,7 +57,10 @@ export default function Home() {
     } finally {
       setTimeout(() => setSosLoading(false), 3000);
     }
-  };
+  }, [sosLoading]);
+
+  // Only call the hook once with stable dependencies
+  useVoiceDetection(VOICE_API_URL, handleSOSTrigger);
 
   useEffect(() => {
     (async () => {
